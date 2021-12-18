@@ -1,5 +1,3 @@
-import sqlite3
-
 from flask_jwt import jwt_required
 from flask_restful import Resource, reqparse
 
@@ -8,7 +6,8 @@ from models.item import ItemModel
 
 class Item(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('price', type=float, required=True, help='Price cannot be blank!')
+    parser.add_argument('price', type=float, required=True, help='price cannot be blank!')
+    parser.add_argument('store_id', type=int, required=True, help='store_id cannot be blank!')
 
     @jwt_required()
     def get(self, name):
@@ -23,7 +22,7 @@ class Item(Resource):
         if ItemModel.find_by_name(name):
             return {'message': f'Item {name} already exists.'}, 400
 
-        item = ItemModel(name, data['price'])
+        item = ItemModel(name, **data)
         item.save_to_db()
         return item.json()
 
@@ -33,9 +32,9 @@ class Item(Resource):
 
         item = ItemModel.find_by_name(name)
         if item:
-            item.price = data['price']
+            item.price, item.store_id = data['price'], data['store_id']
         else:
-            item = ItemModel(name, data['price'])
+            item = ItemModel(name, **data)
 
         item.save_to_db()
         return item.json()

@@ -13,6 +13,6 @@ class UserRegister(Resource):
         if UserModel.get_user_by_username(data['username']):
             return {'message': 'User with such username is already exists'}, 400
 
-        user = UserModel(data['username'], data['password'])
+        user = UserModel(**data)
         user.save_to_db()
         return {'message': 'User successfully created.'}, 201
