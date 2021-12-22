@@ -24,6 +24,11 @@ api.add_resource(StoreList, '/stores')
 jwt = JWTManager(app)
 
 
+@jwt.additional_claims_loader
+def jwt_claims(identity):
+    return {'is_admin': identity == 1}
+
+
 @app.before_first_request
 def create_tables():
     db.create_all()
