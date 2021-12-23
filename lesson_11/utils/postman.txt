@@ -1,0 +1,47 @@
+# pre-req. для автоматического логина
+
+const echoPostRequest = {
+  url: pm.collectionVariables.get('url') + '/auth',
+  method: 'POST',
+  header: 'Content-Type:application/json',
+  body: {
+    mode: 'application/json',
+    raw: JSON.stringify(
+        {
+            username: 'bob',
+            password: 'asdf'
+        })
+  }
+};
+
+var getToken = true;
+
+if (!pm.collectionVariables.get('jwt_expiration_time') ||
+    !pm.collectionVariables.get('jwt_token')) {
+    console.log('Token or expiry date are missing')
+} else if (pm.collectionVariables.get('jwt_expiration_time') <= (new Date()).getTime()) {
+    console.log('Token is expired')
+} else {
+    getToken = false;
+    console.log('Token and expiry date are all good');
+}
+
+var token = pm.collectionVariables.get('jwt_token')
+if (getToken === true && pm.info.requestName !== "/register") {
+    pm.sendRequest(echoPostRequest, function (err, res) {
+    console.log(err ? err : res.json());
+        if (err === null) {
+            console.log('Saving the token and expiry date')
+            var responseJson = res.json();
+            token = responseJson.access_token;
+            pm.collectionVariables.set('jwt_token', token)
+
+            var expiryDate = new Date();
+            expiryDate.setSeconds(expiryDate.getSeconds() + 300);
+            pm.collectionVariables.set('jwt_expiration_time', expiryDate.getTime());
+        }
+    });
+}
+if (pm.info.request !== "/register") {
+    pm.request.headers.add({key: 'Authorization', value: 'JWT ' + token });
+}
