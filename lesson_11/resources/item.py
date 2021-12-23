@@ -6,20 +6,24 @@ from models.item import ItemModel
 
 class Item(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('price', type=float, required=True, help='price cannot be blank!')
-    parser.add_argument('store_id', type=int, required=True, help='store_id cannot be blank!')
+    parser.add_argument(
+        "price", type=float, required=True, help="price cannot be blank!"
+    )
+    parser.add_argument(
+        "store_id", type=int, required=True, help="store_id cannot be blank!"
+    )
 
     @jwt_required()
     def get(self, name):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json(), 200
-        return {'message': f'Item {name} does not exist.'}, 404
+        return {"message": f"Item {name} does not exist."}, 404
 
     @jwt_required()
     def post(self, name):
         if ItemModel.find_by_name(name):
-            return {'message': f'Item {name} already exists.'}, 400
+            return {"message": f"Item {name} already exists."}, 400
 
         data = self.parser.parse_args()
 
@@ -33,7 +37,7 @@ class Item(Resource):
 
         item = ItemModel.find_by_name(name)
         if item:
-            item.price, item.store_id = data['price'], data['store_id']
+            item.price, item.store_id = data["price"], data["store_id"]
         else:
             item = ItemModel(name, **data)
 
@@ -43,13 +47,13 @@ class Item(Resource):
     @jwt_required()
     def delete(self, name):
         claims = get_jwt()
-        if not claims['is_admin']:
-            return {'message': 'You don\'t have enough power to do this'}
+        if not claims["is_admin"]:
+            return {"message": "You don't have enough power to do this"}
 
         item = ItemModel.find_by_name(name)
         if item:
             item.delete_from_db()
-        return {'message': f'Item deleted.'}, 200
+        return {"message": f"Item deleted."}, 200
 
 
 class ItemList(Resource):
@@ -58,6 +62,6 @@ class ItemList(Resource):
         user_id = get_jwt_identity()
         items = [item.json() for item in ItemModel.get_all_items()]
         if user_id:
-            return {'items': items}, 200
+            return {"items": items}, 200
         else:
-            return {'items': [item['name'] for item in items]}, 200
+            return {"items": [item["name"] for item in items]}, 200

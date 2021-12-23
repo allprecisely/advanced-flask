@@ -10,7 +10,7 @@ class Store(Resource):
         item = StoreModel.find_by_name(name)
         if item:
             return item.json(), 200
-        return {'message': f'Item {name} does not exist.'}, 404
+        return {"message": f"Item {name} does not exist."}, 404
 
     @jwt_required()
     def post(self, name):
@@ -29,10 +29,10 @@ class Store(Resource):
         item = StoreModel.find_by_name(name)
         if item:
             item.delete_from_db()
-        return {'message': f'Item deleted.'}, 200
+        return {"message": f"Item deleted."}, 200
 
 
 class StoreList(Resource):
     @jwt_required()
     def get(self):
-        return {'stores': [item.json() for item in StoreModel.get_all_items()]}, 200
+        return {"stores": [item.json() for item in StoreModel.get_all_items()]}, 200

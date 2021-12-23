@@ -2,7 +2,7 @@ from db import db
 
 
 class UserModel(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
@@ -13,7 +13,7 @@ class UserModel(db.Model):
         self.password = password
 
     def json(self):
-        return {'id': self.id, 'username': self.username}
+        return {"id": self.id, "username": self.username}
 
     @classmethod
     def get_user_by_id(cls, _id):
