@@ -1,6 +1,6 @@
 from hmac import compare_digest
 
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, reqparse
 
 from models.user import UserModel
@@ -24,6 +24,7 @@ class UserRegister(Resource):
 
 class User(Resource):
     @staticmethod
+    @jwt_required()
     def get(name):
         user = UserModel.get_user_by_username(name)
         if user:
@@ -31,7 +32,12 @@ class User(Resource):
         return {'message': 'User with such name doesn\'t exist'}, 404
 
     @staticmethod
+    @jwt_required(fresh=True)
     def delete(name):
+        claims = get_jwt()
+        if not claims['is_admin']:
+            return {'message': 'You don\'t have enough power to do this'}
+
         user = UserModel.get_user_by_username(name)
         if user:
             user.delete_from_db()
@@ -54,3 +60,12 @@ class UserLogin(Resource):
                 'refresh_token': refresh_token,
             }
         return {'message': 'Invalid authentication.'}, 401
+
+
+class TokenRefresh(Resource):
+    @staticmethod
+    @jwt_required(refresh=True)
+    def post():
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity)
+        return {'access_token': access_token}, 200

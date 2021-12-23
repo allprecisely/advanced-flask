@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
-from resources.user import User, UserLogin, UserRegister
+from resources.user import User, UserLogin, UserRegister, TokenRefresh
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
@@ -17,6 +17,7 @@ api.add_resource(Item, '/items/<string:name>')
 api.add_resource(ItemList, '/items')
 api.add_resource(User, '/users/<string:name>')
 api.add_resource(UserLogin, '/login')
+api.add_resource(TokenRefresh, '/refresh')
 api.add_resource(UserRegister, '/register')
 api.add_resource(Store, '/stores/<string:name>')
 api.add_resource(StoreList, '/stores')
