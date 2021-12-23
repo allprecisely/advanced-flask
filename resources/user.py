@@ -4,6 +4,7 @@ from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     jwt_required,
+    get_jti,
     get_jwt,
     get_jwt_identity,
 )
@@ -51,6 +52,8 @@ class User(Resource):
 
         user = UserModel.get_user_by_username(name)
         if user:
+            if user.jti:
+                jwt_redis_blocklist.set(user.jti, "", ex=ACCESS_EXPIRES)
             user.delete_from_db()
             return {"message": "User deleted."}, 200
         return {"message": "User with such name doesn't exist"}, 404
@@ -66,6 +69,7 @@ class UserLogin(Resource):
         if user and compare_digest(user.password, data["password"]):
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
+            user.set_jti(get_jti(access_token))
             return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,

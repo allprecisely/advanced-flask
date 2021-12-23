@@ -7,6 +7,7 @@ class UserModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20))
     password = db.Column(db.String(20))
+    jti = db.Column(db.String(36))
 
     def __init__(self, username, password):
         self.username = username
@@ -22,6 +23,10 @@ class UserModel(db.Model):
     @classmethod
     def get_user_by_username(cls, username):
         return cls.query.filter_by(username=username).first()
+
+    def set_jti(self, jti):
+        self.jti = jti
+        db.session.commit()
 
     def save_to_db(self):
         db.session.add(self)
