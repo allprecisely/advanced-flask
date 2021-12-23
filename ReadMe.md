@@ -1,2 +1,2 @@
 Курс с udemy  
-Апишка живет в ветке deploy: https://github.com/allprecisely/advanced-flask/tree/deploy
+Апишка живет на heroku https://advanced-flask.herokuapp.com

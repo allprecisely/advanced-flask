@@ -9,6 +9,7 @@ from resources.store import Store, StoreList
 from resources.user import User, UserLogin, UserLogout, UserRegister, TokenRefresh
 
 app = Flask(__name__)
+# https://stackoverflow.com/questions/66690321
 database_url = os.getenv("DATABASE_URL", "sqlite:///data.db")
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url.replace(
     "postgres://", "postgresql://", 1
