@@ -3,6 +3,7 @@ from hmac import compare_digest
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, reqparse
 
+from db import jwt_redis_blocklist, ACCESS_EXPIRES
 from models.user import UserModel
 
 _user_parser = reqparse.RequestParser()
@@ -60,6 +61,15 @@ class UserLogin(Resource):
                 'refresh_token': refresh_token,
             }
         return {'message': 'Invalid authentication.'}, 401
+
+
+class UserLogout(Resource):
+    @staticmethod
+    @jwt_required()
+    def post():
+        jti = get_jwt()['jti']
+        jwt_redis_blocklist.set(jti, '', ex=ACCESS_EXPIRES)
+        return {'message': 'User has logged out.'}
 
 
 class TokenRefresh(Resource):

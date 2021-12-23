@@ -1,4 +1,4 @@
-# pre-req.
+# pre-req. для автоматического логина
 
 const echoPostRequest = {
   url: pm.collectionVariables.get('url') + '/auth',
