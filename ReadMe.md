@@ -1,2 +1,12 @@
-Курс с udemy  
-Апишка живет на heroku https://advanced-flask.herokuapp.com
+## Небольшая апишка на flask
+
+### Идея
+Сделано по курсу с udemy с небольшими доработками, типа redis'a и докера для тестов
+
+## Heroku
+https://advanced-flask.herokuapp.com  
+Потыкать палкой можно через postman (в планах сделать документацию в swagger)
+
+## Ручное тестирование
+`docker-compose up`  
+Будет запущен сервер на 127.0.0.1:5000, который также можно будет потыкать через postman

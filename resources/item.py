@@ -1,5 +1,6 @@
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from flask_restful import Resource, reqparse
+from sqlalchemy import exc
 
 from models.item import ItemModel
 
@@ -28,7 +29,10 @@ class Item(Resource):
         data = self.parser.parse_args()
 
         item = ItemModel(name, **data)
-        item.save_to_db()
+        try:
+            item.save_to_db()
+        except exc.IntegrityError:
+            return {"message": "Probably store id is missing."}
         return item.json()
 
     @jwt_required()
@@ -41,8 +45,11 @@ class Item(Resource):
         else:
             item = ItemModel(name, **data)
 
-        item.save_to_db()
-        return item.json()
+        try:
+            item.save_to_db()
+            return item.json()
+        except exc.IntegrityError:
+            return {"message": "Probably store id is missing."}
 
     @jwt_required()
     def delete(self, name):
