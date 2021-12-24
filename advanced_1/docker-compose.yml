@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgres://admin:admin@postgresql:5432/main_db
+      FLASK_ENV: development
+    volumes:
+      - .:/code
+
+  redis:
+    image: redis:alpine
+
+  postgresql:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main_db
