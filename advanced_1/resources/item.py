@@ -14,19 +14,21 @@ class Item(Resource):
         "store_id", type=int, required=True, help="store_id cannot be blank!"
     )
 
+    @classmethod
     @jwt_required()
-    def get(self, name):
+    def get(cls, name: str):
         item = ItemModel.find_by_name(name)
         if item:
             return item.json(), 200
         return {"message": f"Item {name} does not exist."}, 404
 
+    @classmethod
     @jwt_required()
-    def post(self, name):
+    def post(cls, name: str):
         if ItemModel.find_by_name(name):
             return {"message": f"Item {name} already exists."}, 400
 
-        data = self.parser.parse_args()
+        data = cls.parser.parse_args()
 
         item = ItemModel(name, **data)
         try:
@@ -35,9 +37,10 @@ class Item(Resource):
             return {"message": "Probably store id is missing."}
         return item.json()
 
+    @classmethod
     @jwt_required()
-    def put(self, name):
-        data = self.parser.parse_args()
+    def put(cls, name: str):
+        data = cls.parser.parse_args()
 
         item = ItemModel.find_by_name(name)
         if item:
@@ -51,8 +54,9 @@ class Item(Resource):
         except exc.IntegrityError:
             return {"message": "Probably store id is missing."}
 
+    @classmethod
     @jwt_required()
-    def delete(self, name):
+    def delete(cls, name: str):
         claims = get_jwt()
         if not claims["is_admin"]:
             return {"message": "You don't have enough power to do this"}
@@ -64,8 +68,9 @@ class Item(Resource):
 
 
 class ItemList(Resource):
+    @classmethod
     @jwt_required(optional=True)
-    def get(self):
+    def get(cls):
         user_id = get_jwt_identity()
         items = [item.json() for item in ItemModel.get_all_items()]
         if user_id:

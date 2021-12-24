@@ -23,8 +23,8 @@ _user_parser.add_argument(
 
 
 class UserRegister(Resource):
-    @staticmethod
-    def post():
+    @classmethod
+    def post(cls):
         data = _user_parser.parse_args()
         if UserModel.get_user_by_username(data["username"]):
             return {"message": "User with such username is already exists"}, 400
@@ -35,17 +35,17 @@ class UserRegister(Resource):
 
 
 class User(Resource):
-    @staticmethod
+    @classmethod
     @jwt_required()
-    def get(name):
+    def get(cls, name: str):
         user = UserModel.get_user_by_username(name)
         if user:
             return user.json()
         return {"message": "User with such name doesn't exist"}, 404
 
-    @staticmethod
+    @classmethod
     @jwt_required(fresh=True)
-    def delete(name):
+    def delete(cls, name: str):
         claims = get_jwt()
         if not claims["is_admin"]:
             return {"message": "You don't have enough power to do this"}
@@ -60,8 +60,8 @@ class User(Resource):
 
 
 class UserLogin(Resource):
-    @staticmethod
-    def post():
+    @classmethod
+    def post(cls):
         data = _user_parser.parse_args()
 
         user = UserModel.get_user_by_username(data["username"])
@@ -78,18 +78,18 @@ class UserLogin(Resource):
 
 
 class UserLogout(Resource):
-    @staticmethod
+    @classmethod
     @jwt_required()
-    def post():
+    def post(cls):
         jti = get_jwt()["jti"]
         jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
         return {"message": "User has logged out."}
 
 
 class TokenRefresh(Resource):
-    @staticmethod
+    @classmethod
     @jwt_required(refresh=True)
-    def post():
+    def post(cls):
         identity = get_jwt_identity()
         access_token = create_access_token(identity=identity)
         return {"access_token": access_token}, 200

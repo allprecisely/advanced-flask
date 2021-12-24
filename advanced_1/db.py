@@ -8,4 +8,4 @@ ACCESS_EXPIRES = timedelta(hours=1)
 
 db = SQLAlchemy()
 
-jwt_redis_blocklist = redis.from_url(os.getenv("REDIS_URL", "redis://redis:6379"))
+jwt_redis_blocklist = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
