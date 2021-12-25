@@ -1,5 +1,6 @@
 from hmac import compare_digest
 
+from flask import request
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -8,24 +9,24 @@ from flask_jwt_extended import (
     get_jwt,
     get_jwt_identity,
 )
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from marshmallow import ValidationError
 
 from db import jwt_redis_blocklist, ACCESS_EXPIRES
 from models.user import UserModel
+from schemas.user import UserSchema
 
-_user_parser = reqparse.RequestParser()
-_user_parser.add_argument(
-    "username", type=str, required=True, help="username should be defined"
-)
-_user_parser.add_argument(
-    "password", type=str, required=True, help="password should be defined"
-)
+user_schema = UserSchema()
 
 
 class UserRegister(Resource):
     @classmethod
     def post(cls):
-        data = _user_parser.parse_args()
+        try:
+            data = user_schema.load(request.get_json())
+        except ValidationError as err:
+            return err.messages, 400
+
         if UserModel.get_user_by_username(data["username"]):
             return {"message": "User with such username is already exists"}, 400
 
@@ -40,7 +41,7 @@ class User(Resource):
     def get(cls, name: str):
         user = UserModel.get_user_by_username(name)
         if user:
-            return user.json()
+            return user_schema.dump(user)
         return {"message": "User with such name doesn't exist"}, 404
 
     @classmethod
@@ -62,7 +63,10 @@ class User(Resource):
 class UserLogin(Resource):
     @classmethod
     def post(cls):
-        data = _user_parser.parse_args()
+        try:
+            data = user_schema.load(request.get_json())
+        except ValidationError as err:
+            return err.messages, 400
 
         user = UserModel.get_user_by_username(data["username"])
 
