@@ -28,7 +28,7 @@ class BookSchema(Schema):
     author = fields.Str()
 
 
-data = {'title': '1', 'author': '2'}
+data = {"title": "1", "author": "2"}
 
 book_schema = BookSchema()
 print(book_schema.load(data))

@@ -1,8 +1,9 @@
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
+from marshmallow import ValidationError
 
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
@@ -35,3 +36,8 @@ jwt = JWTManager(app)
 @jwt.additional_claims_loader
 def jwt_claims(identity):
     return {"is_admin": identity == 1}
+
+
+@app.errorhandler(ValidationError)
+def handle_marshmallow_error(err):
+    return jsonify(err.messages), 400

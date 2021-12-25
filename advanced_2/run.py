@@ -1,8 +1,10 @@
 from app import app, jwt
 from db import db, jwt_redis_blocklist, ACCESS_EXPIRES
+from ma import ma
 
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
 db.init_app(app)
+ma.init_app(app)
 
 
 @app.before_first_request

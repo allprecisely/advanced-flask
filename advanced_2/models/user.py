@@ -5,13 +5,9 @@ class UserModel(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20))
-    password = db.Column(db.String(20))
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(20), nullable=False)
     jti = db.Column(db.String(36))
-
-    def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
 
     @classmethod
     def get_user_by_id(cls, _id: int) -> "UserModel":

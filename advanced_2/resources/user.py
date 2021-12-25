@@ -10,7 +10,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from flask_restful import Resource
-from marshmallow import ValidationError
 
 from db import jwt_redis_blocklist, ACCESS_EXPIRES
 from models.user import UserModel
@@ -22,15 +21,11 @@ user_schema = UserSchema()
 class UserRegister(Resource):
     @classmethod
     def post(cls):
-        try:
-            data = user_schema.load(request.get_json())
-        except ValidationError as err:
-            return err.messages, 400
+        user = user_schema.load(request.get_json())
 
-        if UserModel.get_user_by_username(data["username"]):
+        if UserModel.get_user_by_username(user.username):
             return {"message": "User with such username is already exists"}, 400
 
-        user = UserModel(**data)
         user.save_to_db()
         return {"message": "User successfully created."}, 201
 
@@ -63,14 +58,10 @@ class User(Resource):
 class UserLogin(Resource):
     @classmethod
     def post(cls):
-        try:
-            data = user_schema.load(request.get_json())
-        except ValidationError as err:
-            return err.messages, 400
+        data = user_schema.load(request.get_json())
 
-        user = UserModel.get_user_by_username(data["username"])
-
-        if user and compare_digest(user.password, data["password"]):
+        user = UserModel.get_user_by_username(data.username)
+        if user and compare_digest(user.password, data.password):
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             user.set_jti(get_jti(access_token))
