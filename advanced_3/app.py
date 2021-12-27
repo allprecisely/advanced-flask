@@ -7,7 +7,14 @@ from marshmallow import ValidationError
 
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
-from resources.user import User, UserLogin, UserLogout, UserRegister, TokenRefresh
+from resources.user import (
+    User,
+    UserConfirm,
+    UserLogin,
+    UserLogout,
+    UserRegister,
+    TokenRefresh,
+)
 
 app = Flask(__name__)
 # https://stackoverflow.com/questions/66690321
@@ -17,7 +24,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = database_url.replace(
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["PROPAGATE_EXCEPTIONS"] = True
-app.secret_key = "ilnar"
+app.secret_key = os.getenv('APP_SECRET_KEY')
 
 api = Api(app)
 api.add_resource(Item, "/items/<string:name>")
@@ -27,6 +34,7 @@ api.add_resource(UserLogin, "/login")
 api.add_resource(UserLogout, "/logout")
 api.add_resource(TokenRefresh, "/refresh")
 api.add_resource(UserRegister, "/register")
+api.add_resource(UserConfirm, "/confirm/<string:name>")
 api.add_resource(Store, "/stores/<string:name>")
 api.add_resource(StoreList, "/stores")
 
