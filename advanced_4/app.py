@@ -5,11 +5,11 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from marshmallow import ValidationError
 
+from resources.confirmation import Confirmation, ResendConfirmation
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 from resources.user import (
     User,
-    UserConfirm,
     UserLogin,
     UserLogout,
     UserRegister,
@@ -34,7 +34,8 @@ api.add_resource(UserLogin, "/login")
 api.add_resource(UserLogout, "/logout")
 api.add_resource(TokenRefresh, "/refresh")
 api.add_resource(UserRegister, "/register")
-api.add_resource(UserConfirm, "/confirm/<string:name>")
+api.add_resource(Confirmation, "/confirm/<string:confirmation_id>")
+api.add_resource(ResendConfirmation, "/resend_confirm/<string:name>")
 api.add_resource(Store, "/stores/<string:name>")
 api.add_resource(StoreList, "/stores")
 

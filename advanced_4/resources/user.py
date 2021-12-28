@@ -40,6 +40,7 @@ class UserRegister(Resource):
             user.delete_from_db()
             return {'message': str(e)}, 500
         except:
+            user.delete_from_db()
             traceback.print_exc()
             return {"message": "Some problems with sending email. Check logs."}, 500
 
@@ -76,7 +77,7 @@ class UserLogin(Resource):
 
         user = UserModel.get_user_by_username(data.username)
         if user and compare_digest(user.password, data.password):
-            if not user.activated and user.id != 1:
+            if user.id != 1 and not user.activated:
                 return {'message': 'User is not activated.'}, 400
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
@@ -95,18 +96,6 @@ class UserLogout(Resource):
         jti = get_jwt()["jti"]
         jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
         return {"message": "User has logged out."}
-
-
-class UserConfirm(Resource):
-    @classmethod
-    def get(cls, name):
-        user = UserModel.get_user_by_username(name)
-        if not user:
-            return {"message": "User does not exist."}, 404
-
-        user.activated = True
-        user.save_to_db()
-        return {"message": "User was activated."}
 
 
 class TokenRefresh(Resource):

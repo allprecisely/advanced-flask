@@ -3,6 +3,7 @@ import requests
 
 from db import db
 from libs.mailgun import send_email as mailgun_send_email
+from models.confirmation import ConfirmationModel
 
 
 class UserModel(db.Model):
@@ -13,7 +14,10 @@ class UserModel(db.Model):
     password = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(30), nullable=False, unique=True)
     jti = db.Column(db.String(36))
-    activated = db.Column(db.Boolean, default=False)
+
+    confirmation = db.relationship(
+        "ConfirmationModel", lazy="dynamic", cascade="all, delete-orphan"
+    )
 
     @classmethod
     def get_user_by_id(cls, _id: int) -> "UserModel":
@@ -27,8 +31,20 @@ class UserModel(db.Model):
     def get_user_by_email(cls, email: str) -> "UserModel":
         return cls.query.filter_by(username=email).first()
 
+    @property
+    def most_recent_confirmation(self):
+        return self.confirmation.order_by(db.desc(ConfirmationModel.expired_at)).first()
+
+    @property
+    def activated(self):
+        return self.most_recent_confirmation.confirmed
+
     def send_email(self) -> requests.Response:
-        link = request.url_root[:-1] + url_for("userconfirm", name=self.username)
+        confirmation = ConfirmationModel(user_id=self.id)
+        confirmation.save_to_db()
+        link = request.url_root[:-1] + url_for(
+            "confirmation", confirmation_id=confirmation.id
+        )
         return mailgun_send_email(
             self.email, "Hello", f"Testing some Mailgun awesomness! {link}"
         )
